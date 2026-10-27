@@ -1,0 +1,21 @@
+title = "RWA Stock Lending secret scanning"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Public 20-byte Ethereum token addresses in historical UI configuration"
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^0x[0-9a-fA-F]{40}$''']
+paths = ['''^src/(lib/constants\.ts|app/page\.tsx)$''']
+
+[[rules]]
+id = "evm-private-key-assignment"
+description = "Hard-coded EVM private or signing key"
+regex = '''(?i)(?:private[_-]?key|signing[_-]?key)\s*[=:]\s*["']?((?:0x)?[a-f0-9]{64})\b'''
+secretGroup = 1
+keywords = ["private", "signing"]

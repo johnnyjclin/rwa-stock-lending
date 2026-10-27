@@ -30,8 +30,14 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# Local credentials must never be committed; only the blank template is public.
 .env*
+!.env.example
+
+# Local security scan reports and Hardhat output
+gitleaks-report*
+/artifacts/
+/cache/
 
 # vercel
 .vercel
