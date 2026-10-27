@@ -16,6 +16,13 @@ paths = ['''^src/(lib/constants\.ts|app/page\.tsx)$''']
 [[rules]]
 id = "evm-private-key-assignment"
 description = "Hard-coded EVM private or signing key"
-regex = '''(?i)(?:private[_-]?key|signing[_-]?key)\s*[=:]\s*["']?((?:0x)?[a-f0-9]{64})\b'''
+regex = '''(?i)(?:private[_-]?key|signing[_-]?key)["']?\s*[=:]\s*["']?((?:0x)?[a-f0-9]{64})\b'''
 secretGroup = 1
 keywords = ["private", "signing"]
+
+[[rules]]
+id = "authenticated-rpc-url"
+description = "Embedded Alchemy or Infura RPC credential"
+regex = '''https?://[a-zA-Z0-9.-]*(?:alchemy\.com/v2/|infura\.io/v3/)([a-zA-Z0-9_-]{16,})'''
+secretGroup = 1
+keywords = ["alchemy.com/v2/", "infura.io/v3/"]
