@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+git diff --cached --name-only --diff-filter=ACMR | while IFS= read -r path; do
+  case "${path##*/}" in
+    .env.example) ;;
+    .env|.env.*)
+      printf '%s\n' 'Commit blocked: local environment files must not be tracked.' >&2
+      exit 1
+      ;;
+  esac
+done
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  printf '%s\n' 'Install Gitleaks 8.25+ before committing (see README.md).' >&2
+  exit 1
+fi
+
+exec gitleaks git --pre-commit --staged --config .gitleaks.toml \
+  --redact=100 --no-banner --no-color --ignore-gitleaks-allow

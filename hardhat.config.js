@@ -17,7 +17,7 @@ module.exports = {
       chainId: 31337,
     },
     sepolia: {
-      url: process.env.NEXT_PUBLIC_RPC_URL || "https://example.invalid/rpc",
+      url: process.env.ETHEREUM_RPC_URL || "https://example.invalid/rpc",
       accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
       chainId: 11155111,
     },
