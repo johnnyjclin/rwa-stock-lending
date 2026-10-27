@@ -1,202 +1,64 @@
-# RWA Stock Lending Platform
+# RWA Stock Lending — Contract Integration Experiments
 
-A decentralized lending platform for tokenized Real World Assets (RWA), specifically stocks and bonds. Users can deposit tokenized assets as collateral and borrow stablecoins against them.
+This is the `compound-test` branch of a hackathon proof of concept. It preserves earlier lending-contract experiments and their application adapters. Switch to `main` for the current application overview.
 
-## 🎯 Core Features
+**Use synthetic data, disposable test wallets and sandbox/testnet services only. This branch is not a production financial service or an audited lending protocol.**
 
-### For Users
-- **Deposit Collateral**: Deposit tokenized stocks/bonds as collateral
-- **Borrow Stablecoins**: Borrow against your collateral with competitive rates
-- **Real-time Market Data**: Live price feeds from Alpaca API
-- **Health Factor Monitoring**: Track your position's safety in real-time
-- **Trading Integration**: Execute trades directly through Alpaca
-- **Transaction History**: View all your lending activities
+## Integration focus
 
-### For the Platform
-- **Dynamic Interest Rates**: Compound-style kinked interest rate model
-- **Risk Management**: Automated liquidation for underwater positions
-- **Multiple Assets**: Support for various tokenized stocks and bonds
-- **Price Oracle Integration**: Chainlink and Alpaca price feeds
-- **Smart Contract Security**: Built with OpenZeppelin standards
+My contribution is the application integration layer: connecting the React interface, Next.js backend, MongoDB records and existing contract interfaces. ERC-3643 / OnchainID and lending-contract implementations were developed by other contributors or upstream projects.
 
-## 🏗️ Architecture
+This branch explores:
 
-### Technology Stack
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Smart Contracts**: Solidity 0.8.20, OpenZeppelin
-- **Blockchain**: Ethereum (Sepolia testnet), Binance Smart Chain
-- **Market Data**: Alpaca Markets API
-- **Price Oracles**: Chainlink, Alpaca
-- **Web3**: Ethers.js v6
-- **UI**: Tailwind CSS, Radix UI
+- Wallet connection and application state.
+- Brokerage sandbox account data and tokenized-asset workflows.
+- Calls to identity registries, claim issuers and token contracts.
+- Lending interfaces for collateral supply, withdrawal, borrowing and repayment.
+- Test-contract and price-oracle configuration.
 
-### Project Structure
-```
-├── src/
-│   ├── app/                    # Next.js app router pages
-│   │   ├── api/               # API routes
-│   │   │   ├── alpaca/       # Alpaca integration
-│   │   │   ├── lending/      # Lending APIs
-│   │   │   └── prices/       # Price feeds
-│   │   ├── dashboard/        # User dashboard
-│   │   ├── lending/          # Lending interface
-│   │   ├── trade/            # Trading interface
-│   │   └── history/          # Transaction history
-│   ├── components/            # React components
-│   ├── contracts/            # Contract ABIs and addresses
-│   ├── context/              # React contexts (Web3)
-│   └── lib/                  # Utilities and helpers
-├── contracts/                 # Solidity smart contracts
-│   ├── TokenizedAsset.sol    # ERC20 tokenized assets
-│   ├── LendingPool.sol       # Main lending protocol
-│   └── InterestRateModel.sol # Interest calculations
-└── public/                    # Static assets
+The Solidity contracts here are experimental artifacts, not an official Compound deployment. Compatibility depends on the exact contract ABI, network, token units and deployment configuration.
+
+## Repository guide
+
+- [`src/app`](src/app): application pages, server actions and API routes.
+- [`src/lib`](src/lib): brokerage, identity and lending adapters plus database access.
+- [`contracts`](contracts): earlier lending and oracle experiments.
+- [`scripts`](scripts): experimental setup helpers; review them before use.
+
+The stack combines Next.js, React, TypeScript, MongoDB, Ethers and Solidity tooling. Historical contract notes, addresses and deployment scripts are reference material, not maintained production configuration.
+
+## Local exploration
+
+Use Node.js 22 LTS, npm, a local MongoDB instance and a test-only browser wallet. Copy `.env.example` to `.env.local`, then supply your own sandbox credentials and compatible testnet contracts. The application selects the `rwa_lending` database.
+
+```sh
+npm ci
+npm run dev -- --hostname 127.0.0.1
 ```
 
-## 🚀 Quick Start
+The blank configuration does not provision external services or contracts. Some legacy package scripts reference files that are not present; this branch is not a complete deployment kit. Do not run deployment or transaction scripts against accounts holding real assets.
 
-### Prerequisites
-- Node.js 18+
-- MetaMask wallet
-- Alpaca API account
-- Infura/Alchemy account
+## Boundaries
 
-### Installation
+Wallet-address checks and application identity records are not a complete authentication or KYC/AML system. Minting a demonstration token does not prove real-asset ownership, reservation or settlement. Public deployment would require separate authorization, verification, dependency, privacy and recovery work, plus contract review.
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd rwa-stock-stacking-platform
+## Configuration safety
+
+Keep credentials and authenticated URLs in `.env.local`. `NEXT_PUBLIC_*` settings are exposed to the browser and must contain public configuration only. Never commit personal data, private keys or live service credentials.
+
+Install [Gitleaks](https://github.com/gitleaks/gitleaks) 8.25+ and enable the local check in each clone:
+
+```sh
+git config core.hooksPath .githooks
+gitleaks git --log-opts="--all --full-history" --redact=100 --ignore-gitleaks-allow
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+The hook blocks staged local environment files and scans staged changes. After the history cleanup, use a fresh clone instead of merging or pushing old history. Inspect unpublished work before reapplying it; copies in other clones or forks are not erased by a rewrite.
 
-3. Set up environment variables:
-```bash
-cp .env.example .env.local
-```
+## Attribution
 
-4. Configure your `.env.local` with:
-   - Alpaca API credentials
-   - Blockchain RPC URL
-   - Contract addresses (after deployment)
+- [ERC-3643 / tokenized-stock contracts](https://github.com/RonShih/Tokenized-Stock)
+- [Hackathon lending contracts](https://github.com/herochen11/comet_rwa_hackathon)
+- [OnchainID](https://github.com/onchain-id/solidity)
 
-5. Deploy smart contracts:
-```bash
-npx hardhat run scripts/deploy.js --network sepolia
-```
-
-6. Start the development server:
-```bash
-npm run dev
-```
-
-Visit [http://localhost:3000](http://localhost:3000)
-
-For detailed setup instructions, see [ENV_SETUP.md](ENV_SETUP.md).
-
-## 📚 Documentation
-
-- **[Setup Guide](ENV_SETUP.md)**: Complete environment setup
-- **[Smart Contracts](contracts/README.md)**: Contract documentation and deployment
-- **[API Documentation](#)**: API endpoints reference
-
-## 🔑 Key Concepts
-
-### Collateral Factor
-The maximum percentage of collateral value that can be borrowed. Example: 75% means you can borrow up to $75 for every $100 of collateral.
-
-### Health Factor
-Ratio of collateral value to borrowed value. Must stay above 1.0 to avoid liquidation:
-```
-Health Factor = (Collateral Value × Liquidation Threshold) / Borrowed Value
-```
-
-### Interest Rate Model
-Uses a kinked model similar to Compound:
-- **Below 80% utilization**: Gradual rate increase
-- **Above 80% utilization**: Steep rate increase
-
-### Liquidation
-When health factor drops below 1.0, positions can be liquidated:
-- Liquidator repays debt
-- Receives collateral + 10% bonus
-- Maximum 50% of debt can be liquidated at once
-
-## 🌟 Supported Assets
-
-| Asset | Symbol | Type | Collateral Factor | Liquidation Threshold |
-|-------|--------|------|-------------------|-----------------------|
-| Apple Inc. | TAAPL | Stock | 75% | 85% |
-| Alphabet Inc. | TGOOGL | Stock | 75% | 85% |
-| Tesla Inc. | TTSLA | Stock | 65% | 80% |
-| Microsoft Corp. | TMSFT | Stock | 75% | 85% |
-| US Gov Bonds | TUSG | Bond | 90% | 95% |
-
-## 📊 Interest Rates
-
-Current rate parameters:
-- **Base Rate**: 2%
-- **Multiplier**: 10%
-- **Jump Multiplier**: 300%
-- **Optimal Utilization**: 80%
-
-## 🔐 Security
-
-- Smart contracts built with OpenZeppelin
-- Reentrancy protection on all critical functions
-- Access control for admin operations
-- Regular security audits recommended
-
-## 🧪 Testing
-
-Run the test suite:
-```bash
-npm test
-```
-
-Run smart contract tests:
-```bash
-npx hardhat test
-```
-
-## 🛣️ Roadmap
-
-- [x] Basic lending and borrowing
-- [x] Interest rate calculations
-- [x] Health factor monitoring
-- [x] Real-time price feeds
-- [ ] Liquidation bot
-- [ ] Mobile responsive design
-- [ ] Additional asset support
-- [ ] Governance token
-- [ ] Cross-chain support
-- [ ] Advanced analytics dashboard
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our contributing guidelines before submitting PRs.
-
-## 📝 License
-
-MIT License - see LICENSE file for details
-
-## ⚠️ Disclaimer
-
-This is an MVP for demonstration purposes. Not audited for production use. Use at your own risk. Always conduct thorough testing and audits before deploying to mainnet.
-
-## 🔗 Links
-
-- [Alpaca Markets](https://alpaca.markets/)
-- [Chainlink](https://chain.link/)
-- [Compound Protocol](https://compound.finance/)
-- [OpenZeppelin](https://openzeppelin.com/)
-
-## 📧 Support
-
-For questions and support:
-- Open an issue on GitHub
-- Check documentation in `/contracts/README.md` and `ENV_SETUP.md`
+See [LICENSE](LICENSE). Referenced projects retain their own licenses and attribution requirements.
